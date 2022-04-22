@@ -92,7 +92,7 @@ const Home = () => {
   // Get Weather via Netlify Function
   const fetchWeather = async () => {
     const response = await fetch(
-      `/functions/fetchweather?latitude=${latitude}&longitude=${longitude}`
+      `../netlify/functions/fetchweather?latitude=${latitude}&longitude=${longitude}`
     );
     const weatherData = await response.json();
     return weatherData;
@@ -110,7 +110,7 @@ const Home = () => {
   // Fetch City via Netlify Function
   const fetchCity = async () => {
     const response = await fetch(
-      `/functions/fetchcity?latitude=${latitude}&longitude=${longitude}`
+      `../netlify/functions/fetchcity?latitude=${latitude}&longitude=${longitude}`
     );
     const cityData = await response.json();
     return cityData;
@@ -128,7 +128,7 @@ const Home = () => {
   // Fetch AI Disclaimer via Netlify Function
   const callWarning = async () => {
     console.log("sent request to disclaimer");
-    const fetchWarning = await fetch("/functions/disclaimerai");
+    const fetchWarning = await fetch("../netlify/functions/disclaimerai");
     const data = await fetchWarning.json();
     return data;
   };
@@ -148,7 +148,7 @@ const Home = () => {
     console.log("sent request to openai");
     console.log(aiPrompt);
     const fetchDescription = await fetch(
-      `/functions/weatherai?aiprompt=${encodeURI(aiPrompt)}`
+      `../netlify/functions/weatherai?aiprompt=${encodeURI(aiPrompt)}`
     );
     const data = await fetchDescription.json();
     return data;
