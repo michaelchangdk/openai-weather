@@ -228,16 +228,16 @@ const Home = () => {
     } else if (currentTimeEpoch > sunsetEpoch) {
       time = "Time of day: night.";
       setNight("Night");
-    } else if (currentHours < 11) {
+    } else if (currentHours <= 11) {
       time = "Time of day: morning.";
       setNight("Day");
     } else if (currentHours > 11 && currentHours < 14) {
       time = "Time of day: midday.";
       setNight("Day");
-    } else if (currentHours > 14 && currentHours < 18) {
+    } else if (currentHours >= 14 && currentHours < 18) {
       time = "Time of day: afternoon.";
       setNight("Day");
-    } else if (currentHours > 18) {
+    } else if (currentHours >= 18) {
       time = "Time of day: evening.";
       setNight("Day");
     }
