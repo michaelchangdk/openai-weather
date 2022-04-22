@@ -8,7 +8,7 @@
 # testing
 /coverage
 
-# production
+# production 
 /build
 
 #netlify
@@ -17,6 +17,8 @@
 /.netlify/functions
 /netlify/functions
 /.netlify
+
+/src/functions
 
 # misc
 .DS_Store
