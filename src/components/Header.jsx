@@ -26,4 +26,11 @@ const HeaderWrapper = styled.header`
     text-decoration: underline;
     cursor: pointer;
   }
+
+  /* @media (hover: hover) {
+    a:hover {
+      color: #fb8500;
+      font-weight: 600;
+    }
+  } */
 `;

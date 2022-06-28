@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
-import Results from "../components/Results";
 import Error from "../components/Error";
+import Results from "../components/Results";
 import CurrentWeather from "../components/CurrentWeather";
 import Forecast from "../components/Forecast";
 import Warning from "../components/Warning";
@@ -12,7 +12,9 @@ import { Container } from "../styled_components/styledelements";
 const Home = () => {
   // For Loading and Errors
   const [loading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [foundError, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  let error = "";
 
   // FOR UI & CURRENT WEATHER
   const [weatherGroup, setWeatherGroup] = useState("");
@@ -28,7 +30,7 @@ const Home = () => {
   // FOR FORECAST
   const [hourly, setHourly] = useState([]);
 
-  // ISSUE: Calling APIs twice
+  // Start API Calls
   useEffect(() => {
     bigMomma();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,7 +65,9 @@ const Home = () => {
           };
         },
         (error) => {
-          setError(error.message);
+          setError(true);
+          error = error.message;
+          setErrorMessage(error);
         },
         {
           enableHighAccuracy: true,
@@ -80,17 +84,24 @@ const Home = () => {
     };
   };
 
-  // Fetch City
-  // const fetchCity = async () => {
-  //   const response = await fetch(
-  //     `http://localhost:8000/city?latitude=${latitude}&longitude=${longitude}`
-  //   );
-  //   const cityData = await response.json();
-  //   return cityData;
-  // };
+  // Rate Limit Checker
+  const rateLimit = async () => {
+    console.log("sent rate limit tester");
+    const fetchLimit = await fetch(`/.netlify/functions/ratelimit`);
+    const data = await fetchLimit.json();
+    console.log("rate limit data", data);
+    error = data.error;
+    console.log("error", error);
+    if (error.length > 0) {
+      setError(true);
+      setIsLoading(false);
+      setErrorMessage(error);
+    }
+  };
 
   // Fetch City via Netlify Function
   const fetchCity = async () => {
+    console.log("sent rate limit tester");
     const response = await fetch(
       `/.netlify/functions/fetchcity?latitude=${latitude}&longitude=${longitude}`
     );
@@ -98,32 +109,15 @@ const Home = () => {
     return cityData;
   };
 
-  // Get Weather
-  // const fetchWeather = async () => {
-  //   const response = await fetch(
-  //     `http://localhost:8000/weather?latitude=${latitude}&longitude=${longitude}`
-  //   );
-  //   const weatherData = await response.json();
-  //   return weatherData;
-  // };
-
   // Get Weather via Netlify Function
   const fetchWeather = async () => {
+    console.log("sent fetchweather request");
     const response = await fetch(
       `/.netlify/functions/fetchweather?latitude=${latitude}&longitude=${longitude}`
     );
     const weatherData = await response.json();
     return weatherData;
   };
-
-  // Fetch AI Description via Netlify Function
-  // Fetch AI Disclaimer
-  // const callWarning = async () => {
-  //   console.log("sent request to disclaimer");
-  //   const fetchWarning = await fetch("http://localhost:8000/aiwarning");
-  //   const data = await fetchWarning.json();
-  //   return data;
-  // };
 
   // Fetch AI Disclaimer via Netlify Function
   const callWarning = async () => {
@@ -133,17 +127,7 @@ const Home = () => {
     return data;
   };
 
-  // Fetch AI Description
-  // const callOpenAI = async (aiPrompt) => {
-  //   console.log("sent request to openai");
-  //   console.log(aiPrompt);
-  //   const fetchDescription = await fetch(
-  //     `http://localhost:8000/aidescription?aiPrompt=${encodeURI(aiPrompt)}`
-  //   );
-  //   const data = await fetchDescription.json();
-  //   return data;
-  // };
-
+  // Fetch AI Weather Description via Netlify Function
   const callOpenAI = async (aiPrompt) => {
     console.log("sent request to openai");
     console.log(aiPrompt);
@@ -154,6 +138,7 @@ const Home = () => {
     return data;
   };
 
+  // Big Function for all of the API calls
   const bigMomma = async () => {
     setIsLoading(true);
     console.log("big momma started");
@@ -165,80 +150,84 @@ const Home = () => {
       longitude = position.long;
     });
 
-    console.log("geo resolve finished, starting fetch city");
+    console.log("geolocation finished, starting rate limit");
 
-    await fetchCity().then((city) => {
-      cityName = city[0].local_names.en;
-    });
+    await rateLimit();
 
-    console.log("fetch city finished, fetch weather starting");
+    if (error.length === 0) {
+      console.log("rate limit not exceeded, starting fetch city");
+      await fetchCity().then((city) => {
+        console.log(city);
+        cityName = city[0].local_names.en;
+      });
+    }
 
-    await fetchWeather().then((weatherData) => {
-      console.log(weatherData);
-      weather = weatherData.current.weather[0].main;
-      weatherDescription = weatherData.current.weather[0].description;
-      sunriseEpoch = weatherData.current.sunrise * 1000;
-      sunsetEpoch = weatherData.current.sunset * 1000;
-      currentTimeEpoch = Date.now();
-      currentHours = new Date().getHours();
-      windspeed = weatherData.current.wind_speed;
-      humidity = weatherData.current.humidity;
-      temperature = weatherData.current.temp;
-      weatherID = weatherData.current.weather[0].id;
-      setSunrise(sunriseEpoch);
-      setSunset(sunsetEpoch);
-      setTemp(weatherData.current.temp);
-      setWeatherGroup(weatherID);
-      setHourly(weatherData.hourly);
-      classifyTime();
-      classifyWind();
-      classifyHumid();
-      classifyTemp();
-      classifySun();
-    });
+    if (error.length === 0) {
+      console.log("fetch city finished, fetch weather starting");
+      await fetchWeather().then((weatherData) => {
+        console.log(weatherData);
+        weather = weatherData.current.weather[0].main;
+        weatherDescription = weatherData.current.weather[0].description;
+        sunriseEpoch = weatherData.current.sunrise * 1000;
+        sunsetEpoch = weatherData.current.sunset * 1000;
+        currentTimeEpoch = Date.now();
+        currentHours = new Date().getHours();
+        windspeed = weatherData.current.wind_speed;
+        humidity = weatherData.current.humidity;
+        temperature = weatherData.current.temp;
+        weatherID = weatherData.current.weather[0].id;
+        setSunrise(sunriseEpoch);
+        setSunset(sunsetEpoch);
+        setTemp(weatherData.current.temp);
+        setWeatherGroup(weatherID);
+        setHourly(weatherData.hourly);
+        classifyTime();
+        classifyWind();
+        classifyHumid();
+        classifyTemp();
+        classifySun();
+      });
+    }
 
-    let aiPrompt = `Write a weather description paragraph in a self-doubting, sarcastic, and nihilistic tone, only using computer metaphors and digital jargon, based on inputs. Must include city name. 
-    Inputs: 
-    City name: ${cityName}. 
-    Weather category: ${weather}. 
-    Weather description: ${weatherDescription} 
-    ${time} 
-    Description:`;
+    if (error.length === 0) {
+      await callWarning().then((response) => {
+        setWarning(response.choices[0].text);
+        console.log("disclaimer", response.choices[0].text);
+      });
+    }
 
-    console.log("fetchweather finished, call open ai start");
+    let aiPrompt = `Write a weather description paragraph in a self-doubting, sarcastic, and nihilistic tone, only using computer metaphors and digital jargon, based on inputs. Must include city name. \nInputs: \nCity name: ${cityName}. \nWeather category: ${weather}. \nWeather description: ${weatherDescription} \nTime of day: ${time} \nDescription:`;
 
-    await callWarning().then((response) => {
-      setWarning(response.choices[0].text);
-    });
-
-    await callOpenAI(aiPrompt).then((response) => {
-      setResult(response.choices[0].text);
-    });
-
-    console.log("callopenai done, setisloading to false next");
-
-    setIsLoading(false);
+    if (error.length === 0) {
+      console.log("fetchweather finished, call open ai start");
+      await callOpenAI(aiPrompt).then((response) => {
+        setResult(response.choices[0].text);
+        console.log("weather response", response.choices[0].text);
+        setIsLoading(false);
+        console.log("callopenai done, setisloading to false");
+      });
+    }
   };
 
-  // Add some logic for nordics - when it's morning but before sunrise
+  // START Functions for AI Prompt
   const classifyTime = () => {
     if (currentTimeEpoch < sunriseEpoch) {
-      time = "Time of day: night.";
+      time = "night.";
       setNight("Night");
     } else if (currentTimeEpoch > sunsetEpoch) {
-      time = "Time of day: night.";
+      time = "night.";
       setNight("Night");
     } else if (currentHours <= 11) {
-      time = "Time of day: morning.";
+      time = "morning.";
       setNight("Day");
     } else if (currentHours > 11 && currentHours < 14) {
-      time = "Time of day: midday.";
+      time = "midday.";
       setNight("Day");
     } else if (currentHours >= 14 && currentHours < 18) {
-      time = "Time of day: afternoon.";
+      time = "afternoon.";
       setNight("Day");
     } else if (currentHours >= 18) {
-      time = "Time of day: evening.";
+      time = "evening.";
       setNight("Day");
     }
   };
@@ -308,33 +297,28 @@ const Home = () => {
       weatherDescription += "some sun. ";
     }
   };
+  // END Functions for AI Prompt
 
-  if (error.length > 0) {
-    return <Error error={error} />;
-  }
-  if (loading) {
-    return <Loading />;
-  } else {
-    return (
-      <Container>
-        <CurrentWeather
-          weatherID={weatherGroup}
-          night={night}
-          sunrise={sunrise}
-          sunset={sunset}
-          temp={temp}
-        />
-        <Results
-          results={result}
-          key={result}
-          weatherGroup={weatherGroup}
-          night={night}
-        />
-        <Forecast hourly={hourly} night={night} />
-        <Warning warning={warning} />
-      </Container>
-    );
-  }
+  return (
+    <>
+      {loading && <Loading />}
+      {foundError && <Error key={errorMessage} error={errorMessage} />}
+      {!loading && !foundError && (
+        <Container>
+          <CurrentWeather
+            weatherID={weatherGroup}
+            night={night}
+            sunrise={sunrise}
+            sunset={sunset}
+            temp={temp}
+          />
+          <Results results={result} key={result} />
+          <Forecast hourly={hourly} night={night} />
+          <Warning warning={warning} />
+        </Container>
+      )}
+    </>
+  );
 };
 
 export default Home;

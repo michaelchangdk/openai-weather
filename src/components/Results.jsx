@@ -1,7 +1,7 @@
 import React from "react";
 import Typewriter from "typewriter-effect";
 
-const Results = ({ results, night, weatherGroup }) => {
+const Results = ({ results }) => {
   return (
     <>
       <Typewriter

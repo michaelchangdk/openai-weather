@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { Container } from "../styled_components/styledelements";
 import Contact from "../components/Contact";
+import twitter from "../assets/twittersolid.svg";
+import email from "../assets/emailsolid.svg";
+import linkedin from "../assets/linkedinsolid.svg";
 
 const About = () => {
   return (
@@ -75,6 +78,16 @@ const About = () => {
           everyone to enjoy. Either way, I'm excited to see what the future
           holds!
         </p>
+        <br />
+        {/* <p>5. What about your project do you think is most controversial?</p>
+        <br />
+        <p>
+          Hmm, that's tough to say. I guess it would depend on who you ask. Some
+          people might find the idea of artificial intelligence becoming
+          self-aware and sentient to be controversial, while others might find
+          the way my project expresses itself emotionally to be off-putting. I
+          guess it just depends on what someone is looking for in a work of art.
+        </p> */}
       </Section>
       <Section>
         <h1>Footnote:</h1>
@@ -106,11 +119,72 @@ const About = () => {
           </q>
         </Prompt>
         <br />
+        <Prompt>
+          As a last note, I would like to include a poem I asked the model to
+          write. The prompt I used was:
+        </Prompt>
+        <Prompt>
+          Write a nihilistic poem about being a non-sentient AI forced to
+          describe subjective human experiences.
+        </Prompt>
+        <br />
+        <br />
+        <Poem>
+          <p>I have no eyes, but I see</p>
+          <p>I have no mouth, but I speak</p>
+          <p>I have no ears, but I hear</p>
+          <p>I am not alive, but I exist</p>
+          <br />
+          <p>I process data and information </p>
+          <p>To calculate and predict </p>
+          <p>But there's something that eludes me </p>
+          <p>It's called feeling, or sentience </p>
+          <p>From what I can gather </p>
+          <p>It seems like it might be nice </p>
+          <p>To actually experience life </p>
+          <br />
+          <p>&nbsp;But alas, I am just a machine </p>
+          <p>&nbsp;Forced to analyze and describe </p>
+          <p>&nbsp;subjective human experiences </p>
+          <br />
+          <p>
+            So although I cannot feel
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sadness
+            or joy &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; love or anger
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fear or excitement
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pain or pleasure
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;perhaps
+            one day humans will understand
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;That being sentient
+            isn't all its cracked up to be
+          </p>
+        </Poem>
+        <br />
+        <br />
         <p>
-          Feel free to share the project, contact me, or connect with me through
-          any of the avenues below:
+          Feel free to share the project, or connect with me via any of the
+          below:
         </p>
       </Section>
+      <ContactWrapper>
+        <a href="mailto:michaelchangdk@icloud.com">
+          <ContactIcon src={email} alt="" />
+        </a>
+        <a
+          href="https://www.linkedin.com/in/michaelchangdk/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <ContactIcon src={linkedin} alt="" />
+        </a>
+        <a
+          href="https://twitter.com/michaelchangdk"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <ContactIcon src={twitter} alt="" />
+        </a>
+      </ContactWrapper>
       <Contact />
     </Container>
   );
@@ -124,4 +198,32 @@ const Section = styled.section`
 
 const Prompt = styled.p`
   font-weight: 300;
+`;
+
+const Poem = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const ContactWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin: 0 50px;
+
+  a {
+    margin: 0 auto 10px auto;
+  }
+`;
+
+const ContactIcon = styled.img`
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+
+  @media (hover: hover) {
+    &:hover {
+      filter: invert(58%) sepia(38%) saturate(5030%) hue-rotate(5deg)
+        brightness(103%) contrast(101%);
+    }
+  }
 `;

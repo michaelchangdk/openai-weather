@@ -20,6 +20,10 @@ const Error = ({ error }) => {
 export default Error;
 
 const ErrorWrapper = styled.div`
-  font-size: 13px;
   font-weight: 500;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
